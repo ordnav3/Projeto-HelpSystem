@@ -5,7 +5,7 @@ import { Routes, Route } from "react-router-dom";
 // import CreateRequest from "./pages/CreateRequest";
 // import RequestsList from "./pages/RequestsList";
 
-const AppRoutes: React.FC = () => {
+const Rotas = () => {
     return (
         <Routes>
             {/* <Route path="/" element={<Login />} />
@@ -16,5 +16,5 @@ const AppRoutes: React.FC = () => {
     );
 };
 
-export default AppRoutes;
+export default Rotas;
 

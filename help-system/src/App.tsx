@@ -1,11 +1,19 @@
+import { BrowserRouter } from 'react-router-dom';
+
 import { GlobalStyle } from './styles'
+
+import Rotas from './routes'
+import Header from './components/Header';
+import Footer from './components/Footer';
 
 function App() {
   return (
-    <>
+    <BrowserRouter>
       <GlobalStyle />
-      <h1>Olá Mundo</h1>
-    </>
+      <Header />
+      <Rotas />
+      <Footer />
+    </BrowserRouter>
   );
 }
 
