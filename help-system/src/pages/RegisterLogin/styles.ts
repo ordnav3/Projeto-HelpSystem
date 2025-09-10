@@ -89,6 +89,10 @@ export const FormGrid = styled.div`
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
+
+  @media (max-width: 400px) {
+    gap: 0.5rem;
+  }
 `;
 
 export const SubmitButton = styled.button`
@@ -108,3 +112,51 @@ export const SubmitButton = styled.button`
   }
 `;
 
+export const Alert = styled.div<{ type?: "success" | "error" }>`
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  color: ${({ type }) => (type === "success" ? "#166534" : "#b91c1c")};
+  background: ${({ type }) => (type === "success" ? "#dcfce7" : "#fee2e2")};
+  border: 1px solid ${({ type }) => (type === "success" ? "#bbf7d0" : "#fca5a5")};
+  display: ${({ type }) => (type ? "block" : "none")};
+`;
+
+export const PasswordStrength = styled.div`
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+
+  .strength-bar {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.25rem;
+  }
+
+  .strength-fill {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+    border-radius: 2px;
+    background: #4f46e5; // muda de cor dependendo da força
+  }
+`;
+
+export const UserCard = styled.div`
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+
+  h3 {
+    color: #4f46e5;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+`;
