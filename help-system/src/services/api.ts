@@ -30,5 +30,4 @@ export const register = async (data: RegisterData) => {
   return response.data;
 };
 
-// Se quiser, pode exportar a instância para outras requisições
 export default api;
