@@ -1,16 +1,16 @@
 import React, { useMemo, useState } from "react";
 import * as S from "./styles";
-import Header from "../../components/Header";
 
 type FAQ = {
   id: number;
   title: string;
   content: string;
   department: string;
-  createdAt: string; // ISO
+  createdAt: string;
   viewCount: number;
   usefulCount: number;
   totalVotes: number;
+  answer?: string;
 };
 
 // Função para formatar datas
@@ -28,7 +28,6 @@ const formatDateNice = (iso: string) => {
 };
 
 const FaqPage: React.FC = () => {
-  // ----- Local Storage State -----
   const [faqs, setFaqs] = useState<FAQ[]>(() => {
     const storedFaqs = localStorage.getItem("faqs");
     return storedFaqs ? JSON.parse(storedFaqs) : [];
@@ -39,25 +38,21 @@ const FaqPage: React.FC = () => {
     localStorage.setItem("faqs", JSON.stringify(newFaqs));
   };
 
-  // ----- Filtros e Sorting -----
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState<string>("Todos");
   const [sortBy, setSortBy] = useState<"recent" | "useful" | "viewed">("recent");
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  // Form para adicionar pergunta
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
   const [newDepartment, setNewDepartment] = useState("TI");
   const [addMsg, setAddMsg] = useState<string | null>(null);
 
-  // Lista dinâmica de departamentos
   const departments = useMemo(() => {
     const deps = Array.from(new Set(faqs.map((f) => f.department)));
     return ["Todos", ...deps];
   }, [faqs]);
 
-  // Filtrar + ordenar
   const filteredFaqs = useMemo(() => {
     const term = search.trim().toLowerCase();
     let list = faqs.filter((f) => {
@@ -92,7 +87,6 @@ const FaqPage: React.FC = () => {
     return formatDateNice(latest.createdAt);
   }, [faqs]);
 
-  // Toggle expand e incrementar view
   const toggleExpand = (id: number) => {
     setExpandedId((prev) => {
       const willOpen = prev !== id;
@@ -140,198 +134,196 @@ const FaqPage: React.FC = () => {
   };
 
   return (
-    <>
-      <Header />
-      <S.Container>
-        <S.Header>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              window.history.back();
-            }}
-            className="nav-back"
-          >
-            ← Voltar
-          </a>
-          <h1>Perguntas Frequentes</h1>
-          <p>Encontre respostas rápidas ou envie sua dúvida</p>
-        </S.Header>
+    <S.Container>
+      <S.Header>
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            window.history.back();
+          }}
+          className="nav-back"
+        >
+          ← Voltar
+        </a>
+        <h1>Perguntas Frequentes</h1>
+        <p>Encontre respostas rápidas ou envie sua dúvida</p>
+      </S.Header>
 
-        <S.Content>
-          {/* Filters */}
-          <S.FiltersSection>
-            <S.SearchBox>
-              <input
-                type="text"
-                placeholder="Buscar por palavras-chave..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </S.SearchBox>
+      <S.Content>
+        <S.FiltersSection>
+          <S.SearchBox>
+            <input
+              type="text"
+              placeholder="Buscar por palavras-chave..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </S.SearchBox>
 
-            <S.DepartmentFilters>
-              {departments.map((d) => (
-                <button
-                  key={d}
-                  className={`filter-btn ${department === d ? "active" : ""}`}
-                  onClick={() => setDepartment(d)}
-                  type="button"
-                >
-                  {d}
-                </button>
-              ))}
-            </S.DepartmentFilters>
-          </S.FiltersSection>
-
-          {/* Stats + sort */}
-          <S.StatsBar>
-            <span>
-              {filteredFaqs.length} pergunta{filteredFaqs.length !== 1 ? "s" : ""} encontrad
-              {filteredFaqs.length !== 1 ? "as" : "a"} • Última atualização: {lastUpdated}
-            </span>
-
-            <div className="sort-options" style={{ display: "flex", gap: 8 }}>
+          <S.DepartmentFilters>
+            {departments.map((d) => (
               <button
-                className={`sort-btn ${sortBy === "recent" ? "active" : ""}`}
-                onClick={() => setSortBy("recent")}
+                key={d}
+                className={`filter-btn ${department === d ? "active" : ""}`}
+                onClick={() => setDepartment(d)}
                 type="button"
               >
-                Mais recente
+                {d}
               </button>
-              <button
-                className={`sort-btn ${sortBy === "useful" ? "active" : ""}`}
-                onClick={() => setSortBy("useful")}
-                type="button"
-              >
-                Mais útil
-              </button>
-              <button
-                className={`sort-btn ${sortBy === "viewed" ? "active" : ""}`}
-                onClick={() => setSortBy("viewed")}
-                type="button"
-              >
-                Mais visto
-              </button>
-            </div>
-          </S.StatsBar>
+            ))}
+          </S.DepartmentFilters>
+        </S.FiltersSection>
 
-          {/* FAQ list */}
-          <S.FaqList>
-            {filteredFaqs.map((f) => {
-              const usefulPct = f.totalVotes ? Math.round((f.usefulCount / f.totalVotes) * 100) : 0;
-              return (
-                <S.FaqItem key={f.id} className={expandedId === f.id ? "expanded" : ""}>
-                  <div className="faq-question" onClick={() => toggleExpand(f.id)}>
-                    <div className="question-content">
-                      <h3 className="question-title">{f.title}</h3>
-                      <div className="question-meta">
-                        <span className={`department-badge dept-${f.department.toLowerCase()}`}>
-                          {f.department}
-                        </span>
-                        <span className="question-date">{formatDateNice(f.createdAt)}</span>
-                      </div>
-                      <div className="question-stats">
-                        <span>👁️ {f.viewCount} visualizações</span>
-                        <span>👍 {usefulPct}% útil</span>
-                      </div>
-                    </div>
-                    <div className="expand-icon">{expandedId === f.id ? "−" : "+"}</div>
-                  </div>
-
-                  <div className="faq-answer">
-                    <div className="faq-answer-content" style={{ padding: "1rem 1.5rem" }}>
-                      <p className="answer-text">{f.content}</p>
-                      <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-                        <button
-                          type="button"
-                          onClick={() => handleMarkUseful(f.id)}
-                          style={{
-                            background: "#e6f2ff",
-                            border: "1px solid #bcdcff",
-                            color: "#064e8a",
-                            padding: "6px 10px",
-                            borderRadius: 6,
-                            cursor: "pointer",
-                          }}
-                        >
-                          Marcar como útil
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </S.FaqItem>
-              );
-            })}
-          </S.FaqList>
-
-          {/* Add new question form */}
-          <div style={{ marginTop: 24 }}>
-            <h3>Enviar nova pergunta</h3>
-            {addMsg && (
-              <div
-                style={{ marginBottom: 8, color: addMsg.includes("sucesso") ? "green" : "red" }}
-              >
-                {addMsg}
-              </div>
-            )}
-            <form onSubmit={handleAddQuestion}>
-              <div style={{ display: "grid", gap: 8 }}>
-                <input
-                  placeholder="Título"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  style={{ padding: 10, borderRadius: 8, border: "1px solid #ddd" }}
-                />
-                <textarea
-                  placeholder="Detalhe sua dúvida..."
-                  value={newContent}
-                  onChange={(e) => setNewContent(e.target.value)}
-                  rows={4}
-                  style={{ padding: 10, borderRadius: 8, border: "1px solid #ddd" }}
-                />
-                <select
-                  value={newDepartment}
-                  onChange={(e) => setNewDepartment(e.target.value)}
-                  style={{ padding: 10 }}
-                >
-                  {departments.filter((d) => d !== "Todos").map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button
-                    type="submit"
-                    style={{
-                      padding: "10px 16px",
-                      background: "#4f46e5",
-                      color: "white",
-                      border: "none",
-                      borderRadius: 8,
-                    }}
-                  >
-                    Enviar pergunta
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNewTitle("");
-                      setNewContent("");
-                      setNewDepartment("TI");
-                    }}
-                    style={{ padding: "10px 16px", borderRadius: 8 }}
-                  >
-                    Limpar
-                  </button>
-                </div>
-              </div>
-            </form>
+        <S.StatsBar>
+          <span>
+            {filteredFaqs.length} pergunta{filteredFaqs.length !== 1 ? "s" : ""} encontrad
+            {filteredFaqs.length !== 1 ? "as" : "a"} • Última atualização: {lastUpdated}
+          </span>
+          <div className="sort-options" style={{ display: "flex", gap: 8 }}>
+            <button
+              className={`sort-btn ${sortBy === "recent" ? "active" : ""}`}
+              onClick={() => setSortBy("recent")}
+              type="button"
+            >
+              Mais recente
+            </button>
+            <button
+              className={`sort-btn ${sortBy === "useful" ? "active" : ""}`}
+              onClick={() => setSortBy("useful")}
+              type="button"
+            >
+              Mais útil
+            </button>
+            <button
+              className={`sort-btn ${sortBy === "viewed" ? "active" : ""}`}
+              onClick={() => setSortBy("viewed")}
+              type="button"
+            >
+              Mais visto
+            </button>
           </div>
-        </S.Content>
-      </S.Container>
-    </>
+        </S.StatsBar>
+
+        <S.FaqList>
+          {filteredFaqs.map((f) => {
+            const usefulPct = f.totalVotes ? Math.round((f.usefulCount / f.totalVotes) * 100) : 0;
+            return (
+              <S.FaqItem key={f.id} className={expandedId === f.id ? "expanded" : ""}>
+                <div className="faq-question" onClick={() => toggleExpand(f.id)}>
+                  <div className="question-content">
+                    <h3 className="question-title">{f.title}</h3>
+                    <div className="question-meta">
+                      <span className={`department-badge dept-${f.department.toLowerCase()}`}>
+                        {f.department}
+                      </span>
+                      <span className="question-date">{formatDateNice(f.createdAt)}</span>
+                    </div>
+                    <div className="question-stats">
+                      <span>👁️ {f.viewCount} visualizações</span>
+                      <span>👍 {usefulPct}% útil</span>
+                    </div>
+                  </div>
+                  <div className="expand-icon">{expandedId === f.id ? "−" : "+"}</div>
+                </div>
+
+                <div className="faq-answer">
+                  <div className="faq-answer-content" style={{ padding: "1rem 1.5rem" }}>
+                    <p className="answer-text">{f.content}</p>
+                    {f.answer && (
+                      <div style={{ marginTop: 12, padding: "10px", background: "#e0f7e9", borderRadius: 6 }}>
+                        <b>Resposta do Admin:</b>
+                        <p>{f.answer}</p>
+                      </div>
+                    )}
+                    <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+                      <button
+                        type="button"
+                        onClick={() => handleMarkUseful(f.id)}
+                        style={{
+                          background: "#e6f2ff",
+                          border: "1px solid #bcdcff",
+                          color: "#064e8a",
+                          padding: "6px 10px",
+                          borderRadius: 6,
+                          cursor: "pointer",
+                        }}
+                      >
+                        Marcar como útil
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </S.FaqItem>
+            );
+          })}
+        </S.FaqList>
+
+        <div style={{ marginTop: 24 }}>
+          <h3>Enviar nova pergunta</h3>
+          {addMsg && (
+            <div
+              style={{ marginBottom: 8, color: addMsg.includes("sucesso") ? "green" : "red" }}
+            >
+              {addMsg}
+            </div>
+          )}
+          <form onSubmit={handleAddQuestion}>
+            <div style={{ display: "grid", gap: 8 }}>
+              <input
+                placeholder="Título"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                style={{ padding: 10, borderRadius: 8, border: "1px solid #ddd" }}
+              />
+              <textarea
+                placeholder="Detalhe sua dúvida..."
+                value={newContent}
+                onChange={(e) => setNewContent(e.target.value)}
+                rows={4}
+                style={{ padding: 10, borderRadius: 8, border: "1px solid #ddd" }}
+              />
+              <select
+                value={newDepartment}
+                onChange={(e) => setNewDepartment(e.target.value)}
+                style={{ padding: 10 }}
+              >
+                {departments.filter((d) => d !== "Todos").map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  type="submit"
+                  style={{
+                    padding: "10px 16px",
+                    background: "#4f46e5",
+                    color: "white",
+                    border: "none",
+                    borderRadius: 8,
+                  }}
+                >
+                  Enviar pergunta
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewTitle("");
+                    setNewContent("");
+                    setNewDepartment("TI");
+                  }}
+                  style={{ padding: "10px 16px", borderRadius: 8 }}
+                >
+                  Limpar
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </S.Content>
+    </S.Container>
   );
 };
 

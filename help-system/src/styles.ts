@@ -1,14 +1,15 @@
 import { createGlobalStyle } from "styled-components";
 
-export const cores = {
-    white: '#FFFFFF'
-  }
-
 export const GlobalStyle = createGlobalStyle`
     *{
         margin: 0;
         padding: 0;
         box-sizing: border-box;
         font-family: Roboto sans-serif;
+    }
+
+
+    body{
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 `;
