@@ -1,16 +1,16 @@
 import { useState } from "react";
 import * as S from "./styles";
 import { login, register } from "../../services/api";
+import Header from "../../components/Header";
 
 const RegisterLogin = () => {
   const [activeSection, setActiveSection] = useState<"login" | "cadastro">("login");
 
-  // Inputs de Login
+  // Login
   const [loginEmail, setLoginEmail] = useState("");
   const [loginSenha, setLoginSenha] = useState("");
-  const [loginError, setLoginError] = useState("");
 
-  // Inputs de Registro
+  // Cadastro
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [departamento, setDepartamento] = useState("");
@@ -18,61 +18,63 @@ const RegisterLogin = () => {
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
-  const [registerError, setRegisterError] = useState("");
-  const [registerSuccess, setRegisterSuccess] = useState("");
 
-  // Função para login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError("");
-
     try {
       const data = await login(loginEmail, loginSenha);
-      localStorage.setItem("token", data.token); // salva token
-      alert("Login bem-sucedido!");
-      console.log("Login OK", data);
+      console.log("Login OK:", data);
+      alert("Login realizado com sucesso!");
     } catch (err: any) {
-      setLoginError(err.response?.data?.message || "Erro no login");
+      console.error("Erro no login:", err.response?.data || err.message);
+      alert("Erro no login: " + (err.response?.data?.message || "tente novamente"));
     }
   };
 
-  // Função para registrar usuário
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setRegisterError("");
-    setRegisterSuccess("");
 
     if (senha !== confirmarSenha) {
-      setRegisterError("As senhas não conferem");
+      alert("As senhas não coincidem!");
       return;
     }
 
     try {
-      const data = await register({ nome, email, departamento, cargo, telefone, senha });
-      setRegisterSuccess("Cadastro realizado com sucesso!");
-      setNome("");
-      setEmail("");
-      setDepartamento("");
-      setCargo("");
-      setTelefone("");
-      setSenha("");
-      setConfirmarSenha("");
-      console.log("Registro OK", data);
+      const data = await register({
+        nome,
+        email,
+        departamento,
+        cargo,
+        telefone,
+        senha,
+      });
+      console.log("Cadastro OK:", data);
+      alert("Cadastro realizado com sucesso!");
+      setActiveSection("login");
     } catch (err: any) {
-      setRegisterError(err.response?.data?.message || "Erro ao cadastrar");
+      console.error("Erro no cadastro:", err.response?.data || err.message);
+      alert("Erro no cadastro: " + (err.response?.data?.message || "tente novamente"));
     }
   };
 
   return (
-    <S.Container>
+    <>
+      <Header />
+      <S.Container>
       <S.Header>
         <h1>Sistema de Ajuda</h1>
         <p>Conectando colaboradores através da colaboração mútua</p>
         <S.NavButtons>
-          <S.NavButton active={activeSection === "login"} onClick={() => setActiveSection("login")}>
+          <S.NavButton
+            active={activeSection === "login"}
+            onClick={() => setActiveSection("login")}
+          >
             Login
           </S.NavButton>
-          <S.NavButton active={activeSection === "cadastro"} onClick={() => setActiveSection("cadastro")}>
+          <S.NavButton
+            active={activeSection === "cadastro"}
+            onClick={() => setActiveSection("cadastro")}
+          >
             Cadastro
           </S.NavButton>
         </S.NavButtons>
@@ -82,33 +84,26 @@ const RegisterLogin = () => {
         {activeSection === "login" && (
           <S.Section>
             <h2>Acesso ao Sistema</h2>
-            {loginError && <S.Alert className="error">{loginError}</S.Alert>}
             <form onSubmit={handleLogin}>
               <S.FormGroup>
-                <label htmlFor="loginEmail">Email *</label>
+                <label>Email *</label>
                 <input
                   type="email"
-                  id="loginEmail"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="seu.email@empresa.com"
                   required
                 />
               </S.FormGroup>
-
               <S.FormGroup>
-                <label htmlFor="loginSenha">Senha *</label>
+                <label>Senha *</label>
                 <input
                   type="password"
-                  id="loginSenha"
                   value={loginSenha}
                   onChange={(e) => setLoginSenha(e.target.value)}
-                  placeholder="Digite sua senha"
                   required
                 />
               </S.FormGroup>
-
-              <S.SubmitButton type="submit">Entrar no Sistema</S.SubmitButton>
+              <S.SubmitButton type="submit">Entrar</S.SubmitButton>
             </form>
           </S.Section>
         )}
@@ -116,50 +111,78 @@ const RegisterLogin = () => {
         {activeSection === "cadastro" && (
           <S.Section>
             <h2>Novo Cadastro</h2>
-            {registerError && <S.Alert className="error">{registerError}</S.Alert>}
-            {registerSuccess && <S.Alert className="success">{registerSuccess}</S.Alert>}
             <form onSubmit={handleRegister}>
               <S.FormGrid>
                 <S.FormGroup>
-                  <label htmlFor="nome">Nome Completo *</label>
-                  <input type="text" id="nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
+                  <label>Nome Completo *</label>
+                  <input
+                    type="text"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    required
+                  />
                 </S.FormGroup>
 
                 <S.FormGroup>
-                  <label htmlFor="email">Email Corporativo *</label>
-                  <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <label>Email Corporativo *</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
                 </S.FormGroup>
 
                 <S.FormGroup>
-                  <label htmlFor="departamento">Departamento</label>
-                  <select id="departamento" value={departamento} onChange={(e) => setDepartamento(e.target.value)}>
+                  <label>Departamento</label>
+                  <select
+                    value={departamento}
+                    onChange={(e) => setDepartamento(e.target.value)}
+                  >
                     <option value="">Selecione...</option>
                     <option value="TI">Tecnologia da Informação</option>
                     <option value="RH">Recursos Humanos</option>
                     <option value="Financeiro">Financeiro</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Vendas">Vendas</option>
+                    <option value="Operacoes">Operações</option>
+                    <option value="Juridico">Jurídico</option>
+                    <option value="Outro">Outro</option>
                   </select>
                 </S.FormGroup>
 
                 <S.FormGroup>
-                  <label htmlFor="cargo">Cargo</label>
-                  <input type="text" id="cargo" value={cargo} onChange={(e) => setCargo(e.target.value)} />
+                  <label>Cargo</label>
+                  <input
+                    type="text"
+                    value={cargo}
+                    onChange={(e) => setCargo(e.target.value)}
+                  />
                 </S.FormGroup>
 
                 <S.FormGroup>
-                  <label htmlFor="telefone">Telefone</label>
-                  <input type="tel" id="telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
+                  <label>Telefone</label>
+                  <input
+                    type="tel"
+                    value={telefone}
+                    onChange={(e) => setTelefone(e.target.value)}
+                  />
                 </S.FormGroup>
 
                 <S.FormGroup>
-                  <label htmlFor="senha">Senha *</label>
-                  <input type="password" id="senha" value={senha} onChange={(e) => setSenha(e.target.value)} required />
-                </S.FormGroup>
-
-                <S.FormGroup>
-                  <label htmlFor="confirmarSenha">Confirmar Senha *</label>
+                  <label>Senha *</label>
                   <input
                     type="password"
-                    id="confirmarSenha"
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    required
+                  />
+                </S.FormGroup>
+
+                <S.FormGroup>
+                  <label>Confirmar Senha *</label>
+                  <input
+                    type="password"
                     value={confirmarSenha}
                     onChange={(e) => setConfirmarSenha(e.target.value)}
                     required
@@ -167,12 +190,13 @@ const RegisterLogin = () => {
                 </S.FormGroup>
               </S.FormGrid>
 
-              <S.SubmitButton type="submit">Criar Conta</S.SubmitButton>
+              <S.SubmitButton type="submit">Cadastrar</S.SubmitButton>
             </form>
           </S.Section>
         )}
       </S.Content>
     </S.Container>
+    </>
   );
 };
 

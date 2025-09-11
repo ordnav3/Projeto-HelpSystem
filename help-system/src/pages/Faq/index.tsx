@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import * as S from "./styles";
+import Header from "../../components/Header";
 
 type FAQ = {
   id: number;
@@ -170,7 +171,9 @@ const FAQPage: React.FC = () => {
   };
 
   return (
-    <S.Container>
+    <>
+      <Header />
+      <S.Container>
       <S.Header>
         <a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }} className="nav-back">
           ← Voltar
@@ -321,6 +324,7 @@ const FAQPage: React.FC = () => {
         </div>
       </S.Content>
     </S.Container>
+    </>
   );
 };
 

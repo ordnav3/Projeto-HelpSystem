@@ -1,11 +1,17 @@
-import * as S from './styles'
+import React from "react";
+import * as S from "./styles";
 
-const Footer = () => {
-    return(
-        <S.Footer>
-            <h1>Olá</h1>
-        </S.Footer>
-    )
-}
+const Footer: React.FC = () => {
+  const year = new Date().getFullYear();
 
-export default Footer
+  return (
+    <S.Footer>
+      <p>
+        &copy; {year} - Rápido e Seguro. Todos os direitos reservados. | CNPJ:
+        00.000.001/0001-01 | Desenvolvido com tecnologia e dedicação
+      </p>
+    </S.Footer>
+  );
+};
+
+export default Footer;

@@ -1,11 +1,24 @@
-import * as S from './styles'
+import * as S from "./styles";
+import { Link } from "react-router-dom";
 
-const Header = () => {
-    return(
-        <S.Header>
-            <h1>Olá</h1>
-        </S.Header>
-    )
-}
+const Header: React.FC = () => {
+  return (
+    <S.Header>
+      <S.NavContainer>
+        <S.LogoArea>
+          <S.LogoImage src="/images/transportadora_.png" alt="Rápido e Seguro" />
+          <h2>Rápido e Seguro</h2>
+        </S.LogoArea>
 
-export default Header
+        <nav>
+          <S.NavMenu>
+            <li><Link to="/">Home</Link></li>
+          </S.NavMenu>
+        </nav>
+      </S.NavContainer>
+    </S.Header>
+  );
+};
+
+export default Header;
+
